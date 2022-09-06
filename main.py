@@ -5,6 +5,11 @@ try:
 except:
   import socket
 
+if not exit_btn.value():
+    print("System exit!\n")
+    sys.exit(1)
+
+
 web_page_html = """
 <html>
 <head>
@@ -21,15 +26,9 @@ web_page_html = """
 </html>
 """
 
-#exit_btn = Pin(deneyap.GPKEY, Pin.IN)
-#print("\nHold button to exit..\n")
-#time.sleep(3)
-if not exit_btn.value():
-    print("System exit!\n")
-    sys.exit(1)
-
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind(('', 80))
 s.listen(5)
 print("\nListening..\n")
@@ -52,16 +51,19 @@ while True:
       print("NO DATA RECEIVED!")
   
   response = web_page_html
-  conn.send('HTTP/1.1 200 OK\n')
-  conn.send('Content-Type: text/html\n')
-  conn.send('Connection: close\n\n')
-  conn.sendall(response)
-  conn.close()
+  try:
+      conn.send('HTTP/1.1 200 OK\n')
+      conn.send('Content-Type: text/html\n')
+      conn.send('Connection: close\n\n')
+      conn.sendall(response)
+      conn.close()
+  except OSError:
+      print("OSError!")
   
   if data:
       try:
           print("\nEXECUTING..\n")
           exec(data)
-          print("\nCOMMANDS EXECUTED!\n\n")
+          print("\nCOMMANDS EXECUTED!\n\n") 
       except Exception as e:
           print("FAILED:\n" + str(e))
